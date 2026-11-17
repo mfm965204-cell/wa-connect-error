@@ -36,7 +36,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "test": "node --test test/",
+    "test": "node --test",
     "lint": "node scripts/lint.js",
     "smoke": "node -e \"const m=require('./');if(typeof m.createClient!=='function')process.exit(1);console.log('ok',m.VERSION)\"",
     "prepublishOnly": "npm run lint && npm test"
@@ -67,5 +67,5 @@
   "bugs": {
     "url": "https://github.com/mfm965204-cell/wa-connect-error/issues"
   },
-  "homepage": "https://github.com/mfm965204-cell/wa-connect-error#readme"
+  "homepage": "https://github.com/mfm965204-cell/wa-connect-error"
 }
