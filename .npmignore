@@ -1,0 +1,9 @@
+.github/
+test/
+examples/
+scripts/
+.wa-session*/
+*.log
+*.tgz
+coverage/
+.env

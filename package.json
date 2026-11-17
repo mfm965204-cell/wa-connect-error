@@ -1,0 +1,71 @@
+{
+  "name": "wa-connect-error",
+  "version": "0.1.0",
+  "description": "Log in to WhatsApp Web from your own number and run every common action through one small, stable API. Two interchangeable engines: whatsapp-web.js (QR scan) and Baileys (no browser).",
+  "keywords": [
+    "whatsapp",
+    "whatsapp-web",
+    "whatsapp-web.js",
+    "baileys",
+    "whatsapp-api",
+    "whatsapp-automation",
+    "qr-login",
+    "messaging",
+    "chatbot"
+  ],
+  "license": "MIT",
+  "author": "E Bsnl",
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./src/index.js",
+      "default": "./src/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "node --test test/",
+    "lint": "node scripts/lint.js",
+    "smoke": "node -e \"const m=require('./');if(typeof m.createClient!=='function')process.exit(1);console.log('ok',m.VERSION)\"",
+    "prepublishOnly": "npm run lint && npm test"
+  },
+  "dependencies": {
+    "qrcode-terminal": "^0.12.0"
+  },
+  "peerDependencies": {
+    "@whiskeysockets/baileys": ">=6.7.22 <8",
+    "whatsapp-web.js": ">=1.23.0 <2"
+  },
+  "peerDependenciesMeta": {
+    "@whiskeysockets/baileys": {
+      "optional": true
+    },
+    "whatsapp-web.js": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mfm965204-cell/wa-connect-error.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mfm965204-cell/wa-connect-error/issues"
+  },
+  "homepage": "https://github.com/mfm965204-cell/wa-connect-error#readme"
+}

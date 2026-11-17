@@ -1,0 +1,10 @@
+node_modules/
+.wa-session*/
+*.log
+npm-debug.log*
+.DS_Store
+coverage/
+.nyc_output/
+.env
+.env.*
+*.tgz
