@@ -39,3 +39,32 @@ jobs:
 
       - name: Check what would be published
         run: npm pack --dry-run
+
+  gpr-dry-run:
+    name: GitHub Packages dry run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Scope the package name
+        run: npm pkg set "name=@${GITHUB_REPOSITORY_OWNER}/wa-connect-error"
+
+      - name: Point the scope at GitHub Packages
+        run: |
+          set -euo pipefail
+          {
+            echo "@${GITHUB_REPOSITORY_OWNER}:registry=https://npm.pkg.github.com"
+            echo '//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}'
+          } >> .npmrc
+
+      - name: Publish dry run
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish --dry-run --access public

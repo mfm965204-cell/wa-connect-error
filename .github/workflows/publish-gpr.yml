@@ -1,0 +1,105 @@
+# Publish wa-connect-error to GitHub Packages when a release is created.
+# See https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+
+name: Node.js Package
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: gpr-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+
+  publish-gpr:
+    name: Publish to GitHub Packages
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Installed before .npmrc points the scope at GitHub Packages, so the
+      # dependencies still come from the public registry.
+      - run: npm ci
+
+      - name: Scope the package name for GitHub Packages
+        run: |
+          set -euo pipefail
+          # GitHub Packages only accepts npm names scoped to the owner. The
+          # source keeps the unscoped name so the same tree can also be
+          # published to npmjs.org as `wa-connect-error`.
+          npm pkg set "name=@${GITHUB_REPOSITORY_OWNER}/wa-connect-error"
+          node -p "require('./package.json').name"
+
+      - name: Point the scope at GitHub Packages
+        run: |
+          set -euo pipefail
+          {
+            echo "@${GITHUB_REPOSITORY_OWNER}:registry=https://npm.pkg.github.com"
+            echo '//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}'
+          } >> .npmrc
+          cat .npmrc
+
+      - name: Skip if this version is already published
+        id: check
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          NAME="$(node -p "require('./package.json').name")"
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "checking ${NAME}@${VERSION}"
+          if npm view "${NAME}@${VERSION}" version >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::${NAME}@${VERSION} already exists on GitHub Packages, skipping."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish
+        if: steps.check.outputs.exists == 'false'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish --access public
+
+      - name: Summary
+        if: always()
+        run: |
+          NAME="$(node -p "require('./package.json').name")"
+          VERSION="$(node -p "require('./package.json').version")"
+          {
+            echo "### ${NAME}@${VERSION}"
+            echo ""
+            echo "- registry: https://npm.pkg.github.com"
+            echo "- already published: ${{ steps.check.outputs.exists }}"
+            echo "- install: \`npm install ${NAME} --registry=https://npm.pkg.github.com\`"
+          } >> "$GITHUB_STEP_SUMMARY"

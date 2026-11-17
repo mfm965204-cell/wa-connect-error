@@ -40,6 +40,17 @@ npm install @whiskeysockets/baileys            # engine: 'baileys'
 
 Node.js 18 or newer. `whatsapp-web.js` drives a headless Chromium through Puppeteer, so it needs the browser download (or `PUPPETEER_EXECUTABLE_PATH` pointing at an installed Chrome).
 
+### From GitHub Packages
+
+The same code is also published to GitHub Packages, under a scoped name — GitHub requires npm packages there to carry the owner scope, while the npmjs.org package stays unscoped:
+
+```bash
+npm config set @mfm965204-cell:registry https://npm.pkg.github.com
+npm install @mfm965204-cell/wa-connect-error
+```
+
+Reading from GitHub Packages needs a GitHub token with `read:packages`, so the public npm registry stays the easier route for end users. Publishing there happens on release creation via `.github/workflows/publish-gpr.yml`, using the workflow's own `GITHUB_TOKEN` — no secret to configure.
+
 ## Logging in
 
 ### Option 1 — QR code (both engines)
