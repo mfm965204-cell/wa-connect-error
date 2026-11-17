@@ -61,6 +61,7 @@ jobs:
           fi
 
       - name: Verify npm credentials
+        if: inputs.dry-run != true
         run: |
           set -euo pipefail
           if [ -z "${NODE_AUTH_TOKEN}" ]; then
